@@ -5,7 +5,7 @@ const router = express.Router();
 
 const fs = require('fs');
 const path = require('path');
-const filePath = path.join('./', 'supplies.json');
+const filePath = path.join(__dirname, 'supplies.json');
 const { v4: uuid } = require('uuid');
 
 // Handling request using router
