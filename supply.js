@@ -53,7 +53,13 @@ router.post('/', (req, res, next) => {
 });
 
 router.get('/summary', (req, res, next) => {
-	const supplies = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+	let supplies;
+	try {
+		supplies = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+	} catch (e) {
+		console.log(e);
+	}
+
 	const summary = supplies.reduce(
 		(acc, supply) => {
 			acc.nbSupplies++;
@@ -102,7 +108,7 @@ const createProduct = async product => {
 		'POST',
 		body
 	);
-
+	console.log(response);
 	if (response.id) {
 		return addStock({ ...product, id: response.id });
 	}
