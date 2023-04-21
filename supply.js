@@ -13,7 +13,7 @@ router.post('/', (req, res, next) => {
 
 	if (!body || !body.products) return res.status(404).send();
 	try {
-		const responses = Promise.all(
+		Promise.all(
 			body.products.map((product, index) => {
 				if (product.id) {
 					return addStock(product);
@@ -49,12 +49,21 @@ router.get('/summary', (req, res, next) => {
 });
 
 const addStock = async product => {
-	const body = {
-		quantity: product.quantity,
-		productId: product.id,
-		status: 'supply',
-	};
-	return fetching(`http://127.0.0.1:5000/api/stock/${product.id}/movement`, 'POST', body);
+	try {
+		const body = {
+			quantity: product.quantity,
+			productId: product.id,
+			status: 'supply',
+		};
+		return fetching(
+			`https://vercel-stock-microservices.vercel.app/api/stock/${product.id}/movement`,
+			'POST',
+			body
+		);
+	} catch (e) {
+		console.log(e);
+	}
+	return;
 };
 
 const createProduct = async product => {
