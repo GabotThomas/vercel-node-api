@@ -48,6 +48,26 @@ router.get('/summary', (req, res, next) => {
 	res.status(200).send(summary);
 });
 
+router.post("/api/supply-needed", async (req, res) => {
+	try {
+	  const { productId } = req.body
+	  if (!productId) {
+		throw new Error("Missing productId")
+	  }
+	  const { data } = await axios.get(
+		`http://microservices.tp.rjqu8633.odns.fr/api/products/${productId}`
+	  )
+	  await axios.post(
+		"http://microservices.tp.rjqu8633.odns.fr/api/supply-request",
+		{ ean: data.ean }
+	  )
+	  res.status(204).end()
+	} catch (error) {
+	  console.error(error)
+	  res.status(500).send("Internal server error")
+	}
+  })
+
 const addStock = async product => {
 	try {
 		const body = {
