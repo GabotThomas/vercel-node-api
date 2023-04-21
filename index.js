@@ -12,12 +12,40 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors());
 //Route
 const supplyRoute = require('./supply');
+const { fetching } = require('./function');
 
 app.get('/api/ping', (req, res) => {
 	res.send('PONG');
 });
 
 app.use('/api/supply', supplyRoute);
+
+app.post('/api/supply-needed', async (req, res) => {
+	try {
+		const { productId } = req.body;
+		if (!productId) {
+			throw new Error('Missing productId');
+		}
+		//   const { data } = await axios.get(
+		// 	`http://microservices.tp.rjqu8633.odns.fr/api/products/${productId}`
+		//   )
+		const data = await fetching(
+			`http://microservices.tp.rjqu8633.odns.fr/api/products/${productId}`,
+			'GET'
+		);
+
+		const newReq = await fetching(
+			`http://microservices.tp.rjqu8633.odns.fr/api/supply-request`,
+			'POST',
+			{
+				ean: data.ean,
+			}
+		);
+		res.status(204).end();
+	} catch (error) {
+		res.status(500).send('Internal server error');
+	}
+});
 
 //to delete
 app.post('/api/stock/:id/movement', (req, res, next) => {
