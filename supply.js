@@ -30,25 +30,22 @@ router.post('/', (req, res, next) => {
 });
 
 router.get('/summary', (req, res, next) => {
-	fs.readFile(filePath, 'utf8', (err, data) => {
-		if (err) return;
-		const supplies = JSON.parse(data);
-		const summary = supplies.reduce(
-			(acc, supply) => {
-				acc.nbSupplies++;
-				acc.totalNbProducts += supply.quantity;
-				acc.totalPurchasePrice += supply.quantity * supply.purchasePricePerUnit;
-				return acc;
-			},
-			{
-				nbSupplies: 0,
-				totalNbProducts: 0,
-				totalPurchasePrice: 0,
-			}
-		);
+	const supplies = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+	const summary = supplies.reduce(
+		(acc, supply) => {
+			acc.nbSupplies++;
+			acc.totalNbProducts += supply.quantity;
+			acc.totalPurchasePrice += supply.quantity * supply.purchasePricePerUnit;
+			return acc;
+		},
+		{
+			nbSupplies: 0,
+			totalNbProducts: 0,
+			totalPurchasePrice: 0,
+		}
+	);
 
-		res.status(200).send(summary);
-	});
+	res.status(200).send(summary);
 });
 
 const addStock = async product => {
