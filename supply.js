@@ -3,17 +3,12 @@ const express = require('express');
 const { fetching } = require('./function');
 const router = express.Router();
 
-// export interface SupplyProductDto {
-// 	ean: string;
-// 	name: string;
-// 	description: string;
-// 	purchasePricePerUnit: number;
-// 	quantity: number;
-// }
+const fs = require('fs');
+const path = require('path');
+const filePath = path.join('./', 'supplies.json');
 
 // Handling request using router
 router.post('/', (req, res, next) => {
-	console.log('body :');
 	const body = req.body;
 
 	if (!body || !body.products) return res.status(404).send();
@@ -28,11 +23,32 @@ router.post('/', (req, res, next) => {
 			})
 		);
 	} catch (e) {
-		console.log('test');
 		console.log(e);
 	}
 
 	res.status(204).send();
+});
+
+router.get('/summary', (req, res, next) => {
+	fs.readFile(filePath, 'utf8', (err, data) => {
+		if (err) return;
+		const supplies = JSON.parse(data);
+		const summary = supplies.reduce(
+			(acc, supply) => {
+				acc.nbSupplies++;
+				acc.totalNbProducts += supply.quantity;
+				acc.totalPurchasePrice += supply.quantity * supply.purchasePricePerUnit;
+				return acc;
+			},
+			{
+				nbSupplies: 0,
+				totalNbProducts: 0,
+				totalPurchasePrice: 0,
+			}
+		);
+
+		res.status(200).send(summary);
+	});
 });
 
 const addStock = async product => {
